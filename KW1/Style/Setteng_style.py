@@ -1,8 +1,8 @@
 ﻿IW = ("""
-    QDialog { 
+    QMainWindow, QDialog { 
         background-color: #F0F8FF; 
     }
-    
+
     QWidget { 
         color: #333333; 
         font-family: 'Segoe UI', Arial, sans-serif; 

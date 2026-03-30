@@ -18,8 +18,9 @@ class RungeWindow(QDialog):
         super().__init__(parent)
         self.parent = parent
         self.setWindowTitle("Правило Рунге")
-        self.setFixedSize(820, 620)
+        self.setFixedSize(820, 720)
         self.init_ui()
+        self.setWindowIcon(QIcon("Icon/integral.png"))
 
     def init_ui(self):
         from Function.Integral_operation import calculate_runge_logic
@@ -57,8 +58,9 @@ class RungeWindow(QDialog):
 
         self.res_rows = {}
         
-        methods = [("s левые", "left"), ("s правые", "right"), 
-                   ("s трап", "trap"), ("s симпс", "simp")]
+        methods = [("s левые", "left"), ("s правые", "right"),
+                   ("s cредние", "aven"), ("s трап", "trap"), 
+                   ("s симпс", "simp")]
 
         for i, (name, key) in enumerate(methods):
             lbl = QLabel(name); 

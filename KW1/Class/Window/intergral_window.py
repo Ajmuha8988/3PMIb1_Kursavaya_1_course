@@ -22,6 +22,7 @@ class IntegralWindow(QDialog):
         self.setMinimumSize(1350, 850)
         self.setStyleSheet(IW)
         self.active_hint = None
+        self.setWindowIcon(QIcon("Icon/integral.png"))
         self.init_ui()
 
     def init_ui(self):
@@ -36,7 +37,7 @@ class IntegralWindow(QDialog):
         val_form = QFormLayout()
         
         self.input_a = QLineEdit("1.6")
-        self.input_b = QLineEdit("2.4")
+        self.input_b = QLineEdit("2.2")
         self.input_n = QLineEdit("20")
         
         self.input_a.setValidator(rex_float)
@@ -86,24 +87,35 @@ class IntegralWindow(QDialog):
 
         self.btn_calc = QPushButton("Рассчитать результат")
         self.btn_runge = QPushButton("Оценка по Рунге")
+        self.btn_exit = QPushButton("Выход");
         self.btn_calc.clicked.connect(lambda: run_calculation(self))
         self.btn_runge.clicked.connect(lambda: open_runge_window(self))
+        self.btn_exit.clicked.connect(self.close)
         
         left_side.addSpacing(10)
         left_side.addWidget(self.btn_calc)
         left_side.addWidget(self.btn_runge)
+        left_side.addWidget(self.btn_exit)
         left_side.addStretch()
 
         mid_side = QVBoxLayout()
         res_group = QGroupBox("Результаты методов")
         res_form = QFormLayout()
-        self.res_left = QLineEdit(); self.res_left.setReadOnly(True)
-        self.res_right = QLineEdit(); self.res_right.setReadOnly(True)
-        self.res_trap = QLineEdit(); self.res_trap.setReadOnly(True)
-        self.res_simp = QLineEdit(); self.res_simp.setReadOnly(True)
-        self.res_nmin = QLineEdit(); self.res_nmin.setReadOnly(True)
+        self.res_left = QLineEdit(); 
+        self.res_left.setReadOnly(True)
+        self.res_right = QLineEdit(); 
+        self.res_right.setReadOnly(True)
+        self.res_aven = QLineEdit(); 
+        self.res_aven.setReadOnly(True)
+        self.res_trap = QLineEdit(); 
+        self.res_trap.setReadOnly(True)
+        self.res_simp = QLineEdit(); 
+        self.res_simp.setReadOnly(True)
+        self.res_nmin = QLineEdit(); 
+        self.res_nmin.setReadOnly(True)
         res_form.addRow("Левые прямоуг.:", self.res_left)
         res_form.addRow("Правые прямоуг.:", self.res_right)
+        res_form.addRow("Cредние прямоуг.:", self.res_aven)
         res_form.addRow("Метод трапеций:", self.res_trap)
         res_form.addRow("Метод Симпсона:", self.res_simp)
         res_form.addRow("Минимальное n:", self.res_nmin)

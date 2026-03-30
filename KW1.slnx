@@ -1,7 +1,4 @@
 <Solution>
-  <Project Path="../../ПЗ1_Борлаков_М.К/Test_Python/Test_Python/Test_Python.pyproj" Type="888888a0-9f3d-457c-b088-3a5042f75d52" Id="7617b6c0-1f91-411f-b819-406557be2cc0">
-    <Build Project="false" />
-  </Project>
   <Project Path="KW1/KW1.pyproj" Type="888888a0-9f3d-457c-b088-3a5042f75d52" Id="0c134b82-8b65-4a98-acd3-58adb5ec69ba">
     <Build Project="false" />
   </Project>

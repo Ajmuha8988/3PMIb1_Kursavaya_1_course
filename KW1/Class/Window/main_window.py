@@ -10,7 +10,7 @@ from PyQt6.QtGui import QIcon, QColor
 from pyqt_loading_button import LoadingButton, AnimationType
 # Импорт пользовательского компонента PyQt6, отвечающего за кнопку загрузки
 
-from Function.navigation import _on_topic_click
+from Function.navigation import open_topic, topics
 # Импорт функции, отвечающая за навигацию окон
 
 class MainWindow(QMainWindow):
@@ -19,21 +19,9 @@ class MainWindow(QMainWindow):
         super().__init__(parent=None)
         self.setWindowTitle("Инженерные вычисления")
         self.setGeometry(300, 300, 600, 550)
+        self.setWindowIcon(QIcon("Icon/KW_Icon.png"))
 
         self.integral_ui = None
-        
-        try:
-            self.setWindowIcon(QIcon("./Icon/KW_Icon.png"))
-        except Exception as e:
-            print(f"Ошибка иконки: {e}")
-
-        self.topics = [
-            "Интегралы",
-            "Нелинейные уравнения",
-            "Аппроксимация",
-            "Интерполяция",
-            "Дифференциальные уравнения"
-        ]
 
         self.label = QLabel("Выберите область вычислений:")
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -44,9 +32,9 @@ class MainWindow(QMainWindow):
 
         self.setStyleSheet(Setteng_style.IW)
 
-        self.topic_signal.connect(lambda t: _on_topic_click(self, t))
+        self.topic_signal.connect(lambda t: open_topic(self, t))
 
-        for topic in self.topics:
+        for topic in topics:
             btn = LoadingButton(self)
             btn.setText(topic)
             btn.setAnimationType(AnimationType.Circle)
@@ -63,5 +51,4 @@ class MainWindow(QMainWindow):
         container = QWidget()
         container.setLayout(main_layout)
         self.setCentralWidget(container)
-
 # Класс, которая отвечает за главное меню

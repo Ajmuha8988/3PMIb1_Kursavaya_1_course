@@ -48,7 +48,7 @@ def live_validation(self, index):
                     else:
                         val_a = float(text_a)
                         val_b = float(text_b)
-                        if val_a >= val_b:
+                        if val_a > val_b:
                            return show_single_hint(self, self.input_a, 
                                                 text_a_b)
                         if ODS_1(val_a) == -1:
@@ -119,10 +119,10 @@ def live_validation(self, index):
             if text_epc:
                 val_epc = float(text_epc)
                 w_ep = "Число должно быть больше 0 и не превышать 1"
-                if val_epc > 1 or val_epc < 0:
+                if val_epc > 1 or val_epc <= 0:
                     return show_single_hint(self, self.eps_input, w_ep)
             if not text_epc:
-                i_ep = "Введите число в интервале от 0 до 1"
+                i_ep = "Точность должна быть больше 0 и не больше 1"
                 return show_single_hint(self, self.eps_input, i_ep)
             
             clear_hint(self)
@@ -163,7 +163,7 @@ def update_button_state(self, index):
             try:
                 a_val, b_val = float(a_str), float(b_str)
                 n_val = int(n_str)
-                if a_val >= b_val or n_val <= 0:
+                if a_val > b_val or n_val <= 0:
                     is_valid = False
                 else:
                     if self.radio1.isChecked():
@@ -186,7 +186,7 @@ def update_button_state(self, index):
             e_str = self.eps_input.text().strip()
             val_epc = float(e_str)
 
-            is_valid_runge = (0 <= val_epc <= 1)
+            is_valid_runge = (0 < val_epc <= 1)
 
             if is_valid_runge:
                 if self.radio_group[0].isChecked():
