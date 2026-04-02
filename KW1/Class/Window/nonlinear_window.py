@@ -12,7 +12,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FCanvas
 from matplotlib.figure import Figure
 # Импорт библиотеки для работы с графиками
 
-from Function.Integral_operation import open_runge_window
+from Function.Calculate.integral_operation import open_runge_window
 # Импорт функции, отвечающая за открытия окна для работы с правилом Рунге
 
 class NonlinearWindow(QDialog):
@@ -26,8 +26,8 @@ class NonlinearWindow(QDialog):
         self.init_ui()
 
     def init_ui(self):
-        from Function.ui import run_calculation, live_validation, rex_int, \
-            rex_float
+        from Function.Validation.ui_integral import run_calculation, \
+            live_validation, rex_int, rex_float
 
         outer_layout = QVBoxLayout(self)
         content_layout = QHBoxLayout()

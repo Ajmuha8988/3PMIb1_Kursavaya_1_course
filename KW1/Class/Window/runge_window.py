@@ -23,8 +23,9 @@ class RungeWindow(QDialog):
         self.setWindowIcon(QIcon("Icon/Integral/integral.png"))
 
     def init_ui(self):
-        from Function.Integral_operation import calculate_runge_logic
-        from Function.ui import rex_epc, live_validation
+        from Function.Calculate.integral_operation \
+            import calculate_runge_logic
+        from Function.Validation.ui_integral import rex_epc, live_validation
 
         main_layout = QVBoxLayout(self)
         

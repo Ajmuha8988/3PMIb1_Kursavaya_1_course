@@ -30,7 +30,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Function\navigation.py" />
-    <Compile Include="Function\Validation\ui.py" />
+    <Compile Include="Function\Validation\ui_integral.py" />
     <Compile Include="KW1.py" />
     <Compile Include="Style\Setteng_style.py" />
   </ItemGroup>

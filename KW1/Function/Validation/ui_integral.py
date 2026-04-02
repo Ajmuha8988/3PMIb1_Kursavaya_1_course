@@ -2,7 +2,7 @@
 # Класс, которая является созданным компонетом для вывода всплывающей 
 # подсказки
 
-from Function.Integral_operation import calculate, ODS_1, ODS_3
+from Function.Calculate.integral_operation import calculate, ODS_1, ODS_3
 # Функция отвечающая за вычисления определенного интеграла всеми способами
 
 from PyQt6.QtCore import QRegularExpression
