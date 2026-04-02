@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("Icon/KW_Icon.png"))
 
         self.integral_ui = None
+        self.nonlinear_ui = None
 
         self.label = QLabel("Выберите область вычислений:")
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)

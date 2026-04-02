@@ -15,14 +15,14 @@ from matplotlib.figure import Figure
 from Function.Integral_operation import open_runge_window
 # Импорт функции, отвечающая за открытия окна для работы с правилом Рунге
 
-class IntegralWindow(QDialog):
+class NonlinearWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Интегральные вычисления")
+        self.setWindowTitle("Нелинейные уравнения")
         self.setMinimumSize(1350, 850)
         self.setStyleSheet(IW)
         self.active_hint = None
-        self.setWindowIcon(QIcon("icon/Integral/integral.png"))
+        self.setWindowIcon(QIcon("Icon/nonlinear_icon.png"))
         self.init_ui()
 
     def init_ui(self):
@@ -36,25 +36,25 @@ class IntegralWindow(QDialog):
         val_group = QGroupBox("Параметры вычислений")
         val_form = QFormLayout()
         
-        self.input_a = QLineEdit("1.6")
-        self.input_b = QLineEdit("2.2")
-        self.input_n = QLineEdit("20")
+        self.input_a = QLineEdit("0")
+        self.input_b = QLineEdit("1")
+        self.input_e = QLineEdit("0.001")
         
         self.input_a.setValidator(rex_float)
         self.input_b.setValidator(rex_float)
-        self.input_n.setValidator(rex_int)
+        self.input_e.setValidator(rex_int)
 
-        val_form.addRow("Нижний предел (a):", self.input_a)
-        val_form.addRow("Верхний предел (b):", self.input_b)
-        val_form.addRow("Число разбиений (n):", self.input_n)
+        val_form.addRow("Левая граница (a):", self.input_a)
+        val_form.addRow("Правая граница (b):", self.input_b)
+        val_form.addRow("Точность (e):", self.input_e)
         val_group.setLayout(val_form)
         left_side.addWidget(val_group)
 
         self.input_a.textChanged.connect(lambda: live_validation(self, 1))
         self.input_b.textChanged.connect(lambda: live_validation(self, 1))
-        self.input_n.textChanged.connect(lambda: live_validation(self, 1))
+        self.input_e.textChanged.connect(lambda: live_validation(self, 1))
 
-        int_group = QGroupBox("Выбор подынтегральной функции")
+        int_group = QGroupBox("Выбор нелинейного уравнения")
         int_vbox = QVBoxLayout()
         icon_size = QSize(280, 55)
 
@@ -73,10 +73,10 @@ class IntegralWindow(QDialog):
         self.radio3.toggled.connect(lambda: live_validation(self, 1))
         self.radio4.toggled.connect(lambda: live_validation(self, 1))
 
-        self.radio1.setIcon(QIcon("./icon/Integral/Integral1.png")) 
-        self.radio2.setIcon(QIcon("./icon/Integral/Integral2.png")) 
-        self.radio3.setIcon(QIcon("./icon/Integral/Integral3.png")) 
-        self.radio4.setIcon(QIcon("./icon/Integral/Integral4.png")) 
+        self.radio1.setIcon(QIcon("./Icon/Nonlinear/Nonlinear_1.png")) 
+        self.radio2.setIcon(QIcon("./Icon/Nonlinear/Nonlinear_2.png")) 
+        self.radio3.setIcon(QIcon("./Icon/Nonlinear/Nonlinear_3.png")) 
+        self.radio4.setIcon(QIcon("./Icon/Nonlinear/Nonlinear_4.png")) 
 
         int_vbox.addWidget(self.radio1)
         int_vbox.addWidget(self.radio2)
@@ -86,7 +86,7 @@ class IntegralWindow(QDialog):
         left_side.addWidget(int_group)
 
         self.btn_calc = QPushButton("Рассчитать результат")
-        self.btn_runge = QPushButton("Оценка по Рунге")
+        self.btn_runge = QPushButton("Автоподбор")
         self.btn_exit = QPushButton("Выход");
         self.btn_calc.clicked.connect(lambda: run_calculation(self))
         self.btn_runge.clicked.connect(lambda: open_runge_window(self))
@@ -113,12 +113,11 @@ class IntegralWindow(QDialog):
         self.res_simp.setReadOnly(True)
         self.res_nmin = QLineEdit(); 
         self.res_nmin.setReadOnly(True)
-        res_form.addRow("Левые прямоуг.:", self.res_left)
-        res_form.addRow("Правые прямоуг.:", self.res_right)
-        res_form.addRow("Cредние прямоуг.:", self.res_aven)
-        res_form.addRow("Метод трапеций:", self.res_trap)
-        res_form.addRow("Метод Симпсона:", self.res_simp)
-        res_form.addRow("Минимальное n:", self.res_nmin)
+        res_form.addRow("Дихотомия:", self.res_left)
+        res_form.addRow("Хорды:", self.res_right)
+        res_form.addRow("Касательные:", self.res_aven)
+        res_form.addRow("Комбинированный:", self.res_trap)
+        res_form.addRow("Итерационный:", self.res_simp)
         res_group.setLayout(res_form)
         mid_side.addWidget(res_group)
         mid_side.addStretch()
@@ -148,4 +147,5 @@ class IntegralWindow(QDialog):
         content_layout.addLayout(mid_side, 2)
         content_layout.addLayout(right_side, 5)
         outer_layout.addLayout(content_layout)
-# Класс, которая отвечает за окно с интегралами, графикам и таблицой
+# Класс, которая отвечает за окно с нелинейными уравнениями, графикам и 
+# таблицой

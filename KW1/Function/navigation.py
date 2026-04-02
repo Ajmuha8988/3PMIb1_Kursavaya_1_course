@@ -4,6 +4,7 @@
 from PyQt6.QtCore import  pyqtSlot
 
 from Class.Window.intergral_window import IntegralWindow
+from Class.Window.nonlinear_window import NonlinearWindow
 # Класс, которая отвечает за окно с интегралами, графикам и таблицой 
 
 topics = [
@@ -25,8 +26,12 @@ def open_topic(parent, topic_name):
         parent.integral_ui.activateWindow()
 
     elif topic_name == "Нелинейные уравнения":
-        QMessageBox.information(parent, "В разработке", f"Раздел \
-        '{topic_name}' скоро появится!")
+        if parent.nonlinear_ui is None:
+            parent.nonlinear_ui = NonlinearWindow(parent)
+        
+        parent.nonlinear_ui.show()
+        parent.nonlinear_ui.raise_()
+        parent.nonlinear_ui.activateWindow()
     else:
         print(f"Логика для '{topic_name}' не описана в navigation.py")
 # Функция предназначена для навигации окон

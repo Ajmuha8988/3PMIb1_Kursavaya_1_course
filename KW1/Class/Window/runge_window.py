@@ -20,7 +20,7 @@ class RungeWindow(QDialog):
         self.setWindowTitle("Правило Рунге")
         self.setFixedSize(820, 720)
         self.init_ui()
-        self.setWindowIcon(QIcon("Icon/integral.png"))
+        self.setWindowIcon(QIcon("Icon/Integral/integral.png"))
 
     def init_ui(self):
         from Function.Integral_operation import calculate_runge_logic
@@ -97,7 +97,7 @@ class RungeWindow(QDialog):
         c_f_p = os.path.abspath(__file__) 
         p_root = os.path.dirname(os.path.dirname(os.path.dirname(c_f_p)))
 
-        icon_dir = os.path.join(p_root, "icon") 
+        icon_dir = os.path.join(p_root, "icon/Integral") 
 
         integral_names = ["Integral1", "Integral2", "Integral3", "Integral4"]
         for i, name in enumerate(integral_names):
