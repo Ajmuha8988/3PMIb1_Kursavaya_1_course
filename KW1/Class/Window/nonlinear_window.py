@@ -3,8 +3,9 @@
 
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, 
                              QLineEdit, QPushButton, QRadioButton, QGroupBox,
-                             QTableWidget, QHeaderView as QHV, QFormLayout)
-from PyQt6.QtCore import QSize
+                             QTableWidget, QHeaderView as QHV, QFormLayout, 
+                             QGridLayout, QLabel)
+from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtGui import QIcon
 # Импорт компонентов библиотеки PyQt6 для работы с графическим интерфейсом
 
@@ -12,7 +13,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FCanvas
 from matplotlib.figure import Figure
 # Импорт библиотеки для работы с графиками
 
-from Function.Calculate.integral_operation import open_runge_window
+from Function.Calculate.nonlinear_operation import auto_params_setup
 # Импорт функции, отвечающая за открытия окна для работы с правилом Рунге
 
 class NonlinearWindow(QDialog):
@@ -22,11 +23,11 @@ class NonlinearWindow(QDialog):
         self.setMinimumSize(1350, 850)
         self.setStyleSheet(IW)
         self.active_hint = None
-        self.setWindowIcon(QIcon("Icon/nonlinear_icon.png"))
+        self.setWindowIcon(QIcon("Icon/Nonlinear/nonlinear_icon.png"))
         self.init_ui()
 
     def init_ui(self):
-        from Function.Validation.ui_integral import run_calculation, \
+        from Function.Validation.ui_nonlinear import run_calculation, \
             live_validation, rex_int, rex_float
 
         outer_layout = QVBoxLayout(self)
@@ -58,14 +59,14 @@ class NonlinearWindow(QDialog):
         int_vbox = QVBoxLayout()
         icon_size = QSize(280, 55)
 
-        self.radio1 = QRadioButton(" "); 
+        self.radio1 = QRadioButton(""); 
         self.radio1.setIconSize(icon_size); 
         self.radio1.setChecked(True)
-        self.radio2 = QRadioButton(" "); 
+        self.radio2 = QRadioButton(""); 
         self.radio2.setIconSize(icon_size)
-        self.radio3 = QRadioButton(" "); 
+        self.radio3 = QRadioButton(""); 
         self.radio3.setIconSize(icon_size)
-        self.radio4 = QRadioButton(" "); 
+        self.radio4 = QRadioButton(""); 
         self.radio4.setIconSize(icon_size)
 
         self.radio1.toggled.connect(lambda: live_validation(self, 1))
@@ -89,7 +90,7 @@ class NonlinearWindow(QDialog):
         self.btn_runge = QPushButton("Автоподбор")
         self.btn_exit = QPushButton("Выход");
         self.btn_calc.clicked.connect(lambda: run_calculation(self))
-        self.btn_runge.clicked.connect(lambda: open_runge_window(self))
+        self.btn_runge.clicked.connect(lambda: auto_params_setup(self))
         self.btn_exit.clicked.connect(self.close)
         
         left_side.addSpacing(10)
@@ -100,38 +101,46 @@ class NonlinearWindow(QDialog):
 
         mid_side = QVBoxLayout()
         res_group = QGroupBox("Результаты методов")
-        res_form = QFormLayout()
-        self.res_left = QLineEdit(); 
-        self.res_left.setReadOnly(True)
-        self.res_right = QLineEdit(); 
-        self.res_right.setReadOnly(True)
-        self.res_aven = QLineEdit(); 
-        self.res_aven.setReadOnly(True)
-        self.res_trap = QLineEdit(); 
-        self.res_trap.setReadOnly(True)
-        self.res_simp = QLineEdit(); 
-        self.res_simp.setReadOnly(True)
-        self.res_nmin = QLineEdit(); 
-        self.res_nmin.setReadOnly(True)
-        res_form.addRow("Дихотомия:", self.res_left)
-        res_form.addRow("Хорды:", self.res_right)
-        res_form.addRow("Касательные:", self.res_aven)
-        res_form.addRow("Комбинированный:", self.res_trap)
-        res_form.addRow("Итерационный:", self.res_simp)
-        res_group.setLayout(res_form)
+        res_grid = QGridLayout()
+        res_grid.setSpacing(10)
+        res_grid.setContentsMargins(15, 20, 15, 15)
+        
+        self.res_dih = QLineEdit(); self.res_dih.setReadOnly(True)
+        self.res_hor = QLineEdit(); self.res_hor.setReadOnly(True)
+        self.res_kac = QLineEdit(); self.res_kac.setReadOnly(True)
+        self.res_comba = QLineEdit(); self.res_comba.setReadOnly(True)
+        self.res_iter = QLineEdit(); self.res_iter.setReadOnly(True)
+       
+        self.step_dih = QLineEdit(); self.step_dih.setReadOnly(True); self.step_dih.setFixedWidth(80)
+        self.step_hor = QLineEdit(); self.step_hor.setReadOnly(True); self.step_hor.setFixedWidth(80)
+        self.step_kac = QLineEdit(); self.step_kac.setReadOnly(True); self.step_kac.setFixedWidth(80)
+        self.step_comba = QLineEdit(); self.step_comba.setReadOnly(True); self.step_comba.setFixedWidth(80)
+        self.step_iter = QLineEdit(); self.step_iter.setReadOnly(True); self.step_iter.setFixedWidth(80)
+
+        res_grid.addWidget(QLabel("<b>Метод</b>"), 0, 0)
+        res_grid.addWidget(QLabel("<b>Результат (x)</b>"), 0, 1)
+        res_grid.addWidget(QLabel("<b>Шаги</b>"), 0, 2)
+
+        methods = [
+            ("Дихотомия:", self.res_dih, self.step_dih),
+            ("Хорды:", self.res_hor, self.step_hor),
+            ("Касательные:", self.res_kac, self.step_kac),
+            ("Комбинированный:", self.res_comba, self.step_comba),
+            ("Итерационный:", self.res_iter, self.step_iter)
+        ]
+
+        for i, (name, res_field, step_field) in enumerate(methods, 1):
+            res_grid.addWidget(QLabel(name), i, 0)
+            res_grid.addWidget(res_field, i, 1)
+            res_grid.addWidget(step_field, i, 2)
+
+        res_grid.setRowStretch(6, 1)
+        res_group.setLayout(res_grid)
+        
         mid_side.addWidget(res_group)
         mid_side.addStretch()
 
         right_side = QVBoxLayout()
-        table_container = QGroupBox("Узловые точки")
-        table_layout = QVBoxLayout()
-        RH = QHV.ResizeMode
-        self.table = QTableWidget(0, 2)
-        self.table.setHorizontalHeaderLabels(["xi", "f(xi)"])
-        self.table.horizontalHeader().setSectionResizeMode(RH.Stretch)
-        table_layout.addWidget(self.table)
-        table_container.setLayout(table_layout)
-        right_side.addWidget(table_container, 2)
 
         plot_container = QGroupBox("Визуализация")
         plot_layout = QVBoxLayout()
@@ -141,11 +150,11 @@ class NonlinearWindow(QDialog):
         self.ax.grid(True, linestyle='--', alpha=0.6)
         plot_layout.addWidget(self.canvas)
         plot_container.setLayout(plot_layout)
-        right_side.addWidget(plot_container, 3)
+        right_side.addWidget(plot_container, 1)
 
         content_layout.addLayout(left_side, 2)
-        content_layout.addLayout(mid_side, 2)
-        content_layout.addLayout(right_side, 5)
+        content_layout.addLayout(mid_side, 4) 
+        content_layout.addLayout(right_side, 6)
         outer_layout.addLayout(content_layout)
 # Класс, которая отвечает за окно с нелинейными уравнениями, графикам и 
 # таблицой

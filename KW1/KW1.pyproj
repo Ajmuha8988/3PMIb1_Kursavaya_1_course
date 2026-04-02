@@ -26,10 +26,12 @@
     <Compile Include="Class\Window\runge_window.py" />
     <Compile Include="Class\Window\intergral_window.py" />
     <Compile Include="Class\Window\main_window.py" />
+    <Compile Include="Function\Calculate\nonlinear_operation.py" />
     <Compile Include="Function\Calculate\integral_operation.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Function\navigation.py" />
+    <Compile Include="Function\Validation\ui_nonlinear.py" />
     <Compile Include="Function\Validation\ui_integral.py" />
     <Compile Include="KW1.py" />
     <Compile Include="Style\Setteng_style.py" />
