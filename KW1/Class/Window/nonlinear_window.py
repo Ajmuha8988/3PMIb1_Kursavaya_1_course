@@ -3,9 +3,8 @@
 
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, 
                              QLineEdit, QPushButton, QRadioButton, QGroupBox,
-                             QTableWidget, QHeaderView as QHV, QFormLayout, 
-                             QGridLayout, QLabel)
-from PyQt6.QtCore import QSize, Qt
+                             QFormLayout, QGridLayout, QLabel)
+from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon
 # Импорт компонентов библиотеки PyQt6 для работы с графическим интерфейсом
 
@@ -38,7 +37,7 @@ class NonlinearWindow(QDialog):
         val_form = QFormLayout()
         
         self.input_a = QLineEdit("0")
-        self.input_b = QLineEdit("1")
+        self.input_b = QLineEdit("1.1")
         self.input_e = QLineEdit("0.001")
         
         self.input_a.setValidator(rex_float)
@@ -87,15 +86,15 @@ class NonlinearWindow(QDialog):
         left_side.addWidget(int_group)
 
         self.btn_calc = QPushButton("Рассчитать результат")
-        self.btn_runge = QPushButton("Автоподбор")
+        self.btn_auto = QPushButton("Автоподбор")
         self.btn_exit = QPushButton("Выход");
         self.btn_calc.clicked.connect(lambda: run_calculation(self))
-        self.btn_runge.clicked.connect(lambda: auto_params_setup(self))
+        self.btn_auto.clicked.connect(lambda: auto_params_setup(self))
         self.btn_exit.clicked.connect(self.close)
         
         left_side.addSpacing(10)
         left_side.addWidget(self.btn_calc)
-        left_side.addWidget(self.btn_runge)
+        left_side.addWidget(self.btn_auto)
         left_side.addWidget(self.btn_exit)
         left_side.addStretch()
 
@@ -111,11 +110,16 @@ class NonlinearWindow(QDialog):
         self.res_comba = QLineEdit(); self.res_comba.setReadOnly(True)
         self.res_iter = QLineEdit(); self.res_iter.setReadOnly(True)
        
-        self.step_dih = QLineEdit(); self.step_dih.setReadOnly(True); self.step_dih.setFixedWidth(80)
-        self.step_hor = QLineEdit(); self.step_hor.setReadOnly(True); self.step_hor.setFixedWidth(80)
-        self.step_kac = QLineEdit(); self.step_kac.setReadOnly(True); self.step_kac.setFixedWidth(80)
-        self.step_comba = QLineEdit(); self.step_comba.setReadOnly(True); self.step_comba.setFixedWidth(80)
-        self.step_iter = QLineEdit(); self.step_iter.setReadOnly(True); self.step_iter.setFixedWidth(80)
+        self.step_dih = QLineEdit(); self.step_dih.setReadOnly(True); 
+        self.step_dih.setFixedWidth(80)
+        self.step_hor = QLineEdit(); self.step_hor.setReadOnly(True); 
+        self.step_hor.setFixedWidth(80)
+        self.step_kac = QLineEdit(); self.step_kac.setReadOnly(True); 
+        self.step_kac.setFixedWidth(80)
+        self.step_comba = QLineEdit(); self.step_comba.setReadOnly(True); 
+        self.step_comba.setFixedWidth(80)
+        self.step_iter = QLineEdit(); self.step_iter.setReadOnly(True); 
+        self.step_iter.setFixedWidth(80)
 
         res_grid.addWidget(QLabel("<b>Метод</b>"), 0, 0)
         res_grid.addWidget(QLabel("<b>Результат (x)</b>"), 0, 1)
@@ -156,5 +160,4 @@ class NonlinearWindow(QDialog):
         content_layout.addLayout(mid_side, 4) 
         content_layout.addLayout(right_side, 6)
         outer_layout.addLayout(content_layout)
-# Класс, которая отвечает за окно с нелинейными уравнениями, графикам и 
-# таблицой
+# Класс, которая отвечает за окно с нелинейными уравнениями, графикам и таблицой

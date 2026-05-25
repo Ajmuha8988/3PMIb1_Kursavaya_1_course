@@ -157,7 +157,8 @@ def update_button_state(self, index):
         a_str = self.input_a.text().strip().replace(',', '.')
         b_str = self.input_b.text().strip().replace(',', '.')
         n_str = self.input_n.text().strip()
-        is_valid = bool(a_str and b_str and n_str and a_str != "-" and b_str != "-")
+        is_valid = bool(a_str and b_str and n_str and a_str != "-"
+                        and b_str != "-")
 
         if is_valid:
             try:

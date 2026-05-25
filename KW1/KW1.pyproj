@@ -22,15 +22,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\Components\tooltip.py" />
+    <Compile Include="Class\Window\poly_window.py" />
     <Compile Include="Class\Window\nonlinear_window.py" />
     <Compile Include="Class\Window\runge_window.py" />
     <Compile Include="Class\Window\intergral_window.py" />
     <Compile Include="Class\Window\main_window.py" />
+    <Compile Include="Function\Calculate\poly_operation.py" />
     <Compile Include="Function\Calculate\nonlinear_operation.py" />
     <Compile Include="Function\Calculate\integral_operation.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Function\navigation.py" />
+    <Compile Include="Function\Validation\ui_poly.py" />
     <Compile Include="Function\Validation\ui_nonlinear.py" />
     <Compile Include="Function\Validation\ui_integral.py" />
     <Compile Include="KW1.py" />
@@ -45,6 +48,7 @@
     <Folder Include="Class\" />
     <Folder Include="Function\" />
     <Folder Include="Icon\Integral\" />
+    <Folder Include="Icon\Poly\" />
     <Folder Include="Icon\Nonlinear\" />
     <Folder Include="Style\" />
   </ItemGroup>
@@ -54,12 +58,18 @@
     <Content Include="Icon\Integral3.png" />
     <Content Include="Icon\Integral1.png" />
     <Content Include="Icon\Integral4.png" />
+    <Content Include="icon\Integral\integral.png" />
+    <Content Include="icon\Integral\Integral1.png" />
+    <Content Include="icon\Integral\Integral2.png" />
+    <Content Include="icon\Integral\Integral3.png" />
+    <Content Include="icon\Integral\Integral4.png" />
     <Content Include="Icon\KW_Icon.png" />
     <Content Include="icon\Nonlinear_1.png" />
     <Content Include="icon\Nonlinear_2.png" />
     <Content Include="icon\Nonlinear_3.png" />
     <Content Include="icon\Nonlinear_4.png" />
     <Content Include="Icon\nonlinear_icon.png" />
+    <Content Include="Icon\Poly\Poly_icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
