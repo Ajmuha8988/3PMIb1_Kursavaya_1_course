@@ -1,0 +1,65 @@
+(async () => {
+    console.log("=== Запуск финального скрипта с кликом по DIV ===");
+    
+    const items = jQuery('.collectionItem a[href*="id="]').toArray();
+    const urls = [...new Set(items.map(a => a.href))];
+    
+    console.log(`Страниц для обработки: ${urls.length}`);
+
+    for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        console.log(`[${i + 1}/${urls.length}] Открываем: ${url}`);
+        
+        const newTab = window.open(url, '_blank');
+        if (!newTab) {
+            console.error("Разрешите всплывающие окна в браузере!");
+            break;
+        }
+
+        // Ждем загрузки страницы
+        await new Promise(r => setTimeout(r, 3500));
+
+        try {
+            const doc = newTab.document;
+            const subBtn = doc.querySelector('.SubscribeItemBtn, #SubscribeItemBtn');
+
+            if (subBtn) {
+                // Если уже подписаны, отписываемся
+                if (subBtn.classList.contains('toggled')) {
+                    subBtn.click();
+                    await new Promise(r => setTimeout(r, 1500));
+                }
+
+                // Нажимаем "Подписаться"
+                subBtn.click();
+                
+                // Ждем появления модального окна
+                await new Promise(r => setTimeout(r, 2500));
+
+                // Ищем именно тот DIV, который мы увидели в коде
+                const steamUiButtons = Array.from(doc.querySelectorAll('.btn_blue_steamui'));
+                const confirmBtn = steamUiButtons.find(btn => {
+                    const text = btn.textContent.toLowerCase();
+                    return text.includes('подписаться на все') || text.includes('subscribe to all');
+                });
+
+                if (confirmBtn) {
+                    console.log("   -> Кнопка-DIV найдена! Нажимаем 'Подписаться на все'...");
+                    confirmBtn.click();
+                    // Даем 2.5 секунды, чтобы Steam отправил все запросы
+                    await new Promise(r => setTimeout(r, 2500)); 
+                } else {
+                    console.log("   -> Кнопка не найдена. Возможно, у рестлера нет зависимостей.");
+                }
+            }
+        } catch (e) {
+            console.error("Ошибка при работе с вкладкой:", e);
+        }
+
+        // Закрываем вкладку и идем дальше
+        newTab.close();
+        await new Promise(r => setTimeout(r, 1000));
+    }
+
+    console.log("=== Процесс полностью завершен! Все рестлеры обновлены. ===");
+})();
