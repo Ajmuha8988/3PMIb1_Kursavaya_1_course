@@ -1,26 +1,31 @@
-﻿import numpy as np
-from numba import njit
+﻿import math
+import numpy as np
 # Библиотеки для работы с массивами и быстрыми вычислениями
 
-def get_determinant(matrix):
-    size = len(matrix)
-    if size == 1:
-        return matrix[0][0]
-    if size == 2:
-        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
-    
-    det = 0
-    for col in range(size):
-        minor = [row[:col] + row[col+1:] for row in matrix[1:]]
-        det += ((-1) ** col) * matrix[0][col] * get_determinant(minor)
-    return det
+from Function.Calculate.CLAY import get_determinant
 # Рекурсивное вычисление определителя для метода Крамера
+
+from Function.Calculate.CLAY import get_determinant, solve_gauss
+# Рекурсивное вычисление определителя для метода Крамера и метод Гаусса как резервный/устойчивый метод
 
 def get_canonical_coeffs(x_data, y_data):
     n = len(x_data)
+    
+    if n > 6:
+        try:
+            matrix = [[float(x**i) for i in range(n)] for x in x_data]
+            return solve_gauss(matrix, list(y_data))
+        except Exception:
+            return None
+
     matrix = [[float(x**i) for i in range(n)] for x in x_data]
     d_main = get_determinant(matrix)
-    if abs(d_main) < 1e-12: return None
+    
+    if abs(d_main) < 1e-30: 
+        try:
+            return solve_gauss(matrix, list(y_data))
+        except Exception:
+            return None
     
     coeffs = []
     for i in range(n):
@@ -30,7 +35,7 @@ def get_canonical_coeffs(x_data, y_data):
         d_i = get_determinant(v_matrix)
         coeffs.append(d_i / d_main)
     return coeffs
-# Получение коэффициентов канонического полинома
+# Получение коэффициентов канонического полинома с автоматическим выбором метода
 
 def poly_lagrange(x_val, x_data, y_data):
     n = len(x_data)
@@ -53,16 +58,27 @@ def poly_newton(x_val, x_data, y_data):
     x_s = x_data[idx].astype(float)
     y_s = y_data[idx].astype(float)
     
-    coef = np.copy(y_s)
-    for j in range(1, n):
-        for i in range(n - 1, j - 1, -1):
-            coef[i] = (coef[i] - coef[i-1]) / (x_s[i] - x_s[i-j])
+    h = x_s[1] - x_s[0]
+    tolerance = 1e-9 
+    for i in range(1, n - 1):
+        current_step = x_s[i+1] - x_s[i]
+        if abs(current_step - h) > tolerance:
+            raise ValueError("Узлы не являются равноотстоящими")
             
-    res = coef[0]
-    prod = 1.0
+    dy = np.zeros((n, n))
+    dy[:, 0] = y_s
+    
+    for j in range(1, n):
+        for i in range(n - j):
+            dy[i, j] = dy[i+1, j-1] - dy[i, j-1]
+            
+    q = (x_val - x_s[0]) / h
+    res = dy[0, 0]
+    
+    term = 1.0
     for k in range(1, n):
-        prod *= (x_val - x_s[k-1])
-        res += coef[k] * prod
+        term *= (q - k + 1)
+        res += (term * dy[0, k]) / math.factorial(k)
         
     return res
 # Полином Ньютона

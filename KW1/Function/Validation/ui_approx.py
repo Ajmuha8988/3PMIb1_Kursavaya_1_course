@@ -7,10 +7,9 @@ from PyQt6.QtGui import QRegularExpressionValidator
 from Class.Components.tooltip import ModernHint as MH
 # Импорт класса всплывающей подсказки
 
-from Function.Calculate.poly_operation import (get_canonical_coeffs,
-                                               poly_lagrange,
-                                              poly_newton, 
-                                              format_universal_formula)
+from Function.Calculate.approx_operation import (fit_linear,
+                              fit_quadratic,
+                              fit_custom)
 
 float_re = QRegularExpression(r"^-?\d*[.,]?\d*$")
 rex_float = QRegularExpressionValidator(float_re)
@@ -28,6 +27,17 @@ def live_validation(self, index):
         if x_text == "-": 
             clear_hint(self, self.input_y)
             return show_single_hint(self, self.input_x, "Неполное число")
+            
+        # ПРОВЕРКА НА НОЛЬ: выводим подсказку, если введен 0
+        try:
+            x_val = float(x_text)
+            if abs(x_val) < 1e-12:
+                clear_hint(self, self.input_y)
+                return show_single_hint(self, self.input_x, 
+                                        "X не может быть равен 0")
+        except ValueError:
+            pass
+
         if y_text == "": 
             clear_hint(self, self.input_x)
             return show_single_hint(self, self.input_y, "Введите Y")
@@ -48,37 +58,6 @@ def live_validation(self, index):
         
         clear_hint(self, self.input_x)
         clear_hint(self, self.input_y)
-    
-    elif index == 2:
-        e_text = self.input_interp_x.text().replace(',', '.')
-        if e_text == "": 
-            show_single_hint(self, self.input_interp_x, "Введите точку X")
-            if self.table_points.rowCount() >= 2:
-                run_interpolation(self)
-            return
-        if e_text == "-": 
-            show_single_hint(self, self.input_interp_x, "Неполное число")
-            if self.table_points.rowCount() >= 2:
-                run_interpolation(self)
-            return
-            
-        if self.table_points.rowCount() >= 2:
-            try:
-                x_vals = [float(self.table_points.item(i, 0).text()) for i 
-                          in range(self.table_points.rowCount())]
-                x_min, x_max = min(x_vals), max(x_vals)
-                val = float(e_text)
-                if val < x_min or val > x_max:
-                    show_single_hint(self, self.input_interp_x, \
-                        f"Точка вне диапазона [{x_min}, {x_max}]")
-                    run_interpolation(self)
-                    return
-            except ValueError:
-                pass
-                
-        clear_hint(self, self.input_interp_x)
-        if self.table_points.rowCount() >= 2:
-            run_interpolation(self)
 # Функция предназначена для живой валидации данных
 
 def update_button_state(self):
@@ -89,11 +68,15 @@ def update_button_state(self):
     if can_add:
         try:
             x_val = float(x_text)
-            for i in range(self.table_points.rowCount()):
-                tbl_val = float(self.table_points.item(i, 0).text())
-                if abs(tbl_val - x_val) < 1e-9:
-                    can_add = False
-                    break
+            
+            if abs(x_val) < 1e-12:
+                can_add = False
+            else:
+                for i in range(self.table_points.rowCount()):
+                    tbl_val = float(self.table_points.item(i, 0).text())
+                    if abs(tbl_val - x_val) < 1e-9:
+                        can_add = False
+                        break
         except ValueError:
             can_add = False
             
@@ -107,7 +90,7 @@ def show_single_hint(self, widget, text):
     if widget in self.active_hints:
         hint = self.active_hints[widget]
         try:
-            if hint and hint.text == text: 
+            if hint and hint.text == text:
                 return
         except RuntimeError:
             pass
@@ -171,6 +154,9 @@ def add_point(self):
     try:
         new_x = float(x_str)
         new_y = float(y_str)
+        
+        if abs(new_x) < 1e-12:
+            return
     except ValueError:
         return
 
@@ -202,15 +188,16 @@ def add_point(self):
     self.input_x.clear()
     self.input_y.clear()
     
-    run_interpolation(self)
+    run_approximation(self)
     update_button_state(self)
 # Добавление точки
 
 def fill_by_condition(self):
     clear_all(self)
-    self.input_interp_x.setText("0.1")
-    points = [(-0.2, 0.0), (0.0, -0.2), (0.2, 0.5), (0.4, 3.0),
-              (0.6, 4.0), (0.8, 4.1)]
+    points = [(5.07, 7.0), (5.09, 4.5), (5.11, 3.0), 
+              (5.22, 2.5), (5.33, 2.3), (5.44, 1.5), 
+              (5.55, 1.7), (5.62, 2.1), (5.77, 2.21),
+             (5.88, 3.0), (5.99, 4.5), (6.0, 5.0)]
     for x, y in points:
         row = self.table_points.rowCount()
         self.table_points.insertRow(row)
@@ -224,10 +211,9 @@ def fill_by_condition(self):
         self.table_points.setItem(row, 0, item_x)
         self.table_points.setItem(row, 1, item_y)
         
-    run_interpolation(self)
+    run_approximation(self)
     update_button_state(self)
     live_validation(self, 1)
-    live_validation(self, 2)
 # Заполнение по условию
 
 def delete_selected(self):
@@ -235,108 +221,159 @@ def delete_selected(self):
     for index in sorted(indices, reverse=True):
         self.table_points.removeRow(index.row())
     
-    if self.table_points.rowCount() >= 2:
-        run_interpolation(self)
+    if self.table_points.rowCount() >= 3:
+        run_approximation(self)
     else:
         self.ax.clear()
         self.canvas.draw()
-        self.res_lagrange.clear()
-        self.res_newton.clear()
-        self.res_canonical.clear()
+        self.res_lin_a.clear()
+        self.res_lin_b.clear()
+        self.res_lin_sse.clear()
+        self.res_quad_a.clear()
+        self.res_quad_b.clear()
+        self.res_quad_c.clear()
+        self.res_quad_sse.clear()
+        self.res_cust_a.clear()
+        self.res_cust_b.clear()
+        self.res_cust_c.clear()
+        self.res_cust_sse.clear()
     update_button_state(self)
 # Удаление точки
 
 def clear_all(self):
     clear_hint(self)
     self.table_points.setRowCount(0)
-    self.res_lagrange.clear()
-    self.res_newton.clear()
-    self.res_canonical.clear()
-    self.label_formula.setText("Универсальная формула: ")
+    self.res_lin_a.clear()
+    self.res_lin_b.clear()
+    self.res_lin_sse.clear()
+    self.res_quad_a.clear()
+    self.res_quad_b.clear()
+    self.res_quad_c.clear()
+    self.res_quad_sse.clear()
+    self.res_cust_a.clear()
+    self.res_cust_b.clear()
+    self.res_cust_c.clear()
+    self.res_cust_sse.clear()
     self.ax.clear()
     self.ax.grid(True, linestyle='--', alpha=0.6)
     self.canvas.draw()
     update_button_state(self)
     live_validation(self, 1)
-    live_validation(self, 2)
 # Очистка всего
 
-def run_interpolation(self):
+def delete_selected(self):
+    indices = self.table_points.selectionModel().selectedRows()
+    for index in sorted(indices, reverse=True):
+        self.table_points.removeRow(index.row())
+
+    if self.table_points.rowCount() > 0:
+        run_approximation(self)
+    else:
+        clear_all(self)
+    update_button_state(self)
+
+
+def run_approximation(self):
     try:
         n = self.table_points.rowCount()
-        if n < 2: return
-        
+
+        if n < 3:
+            self.res_lin_a.setText("Нужно >= 2 точек")
+            self.res_lin_b.setText("Нужно >= 2 точек")
+            self.res_lin_sse.setText("Нужно >= 2 точек")
+
+            self.res_quad_a.setText("Нужно >= 3 точек")
+            self.res_quad_b.setText("Нужно >= 3 точек")
+            self.res_quad_c.setText("Нужно >= 3 точек")
+            self.res_quad_sse.setText("Нужно >= 3 точек")
+
+            self.res_cust_a.setText("Нужно >= 3 точек")
+            self.res_cust_b.setText("Нужно >= 3 точек")
+            self.res_cust_c.setText("Нужно >= 3 точек")
+            self.res_cust_sse.setText("Нужно >= 3 точек")
+            
+            self.ax.clear()
+            self.ax.grid(True, linestyle='--', alpha=0.6)
+            self.canvas.draw()
+            return
+
         points = []
         for i in range(n):
-            points.append((float(self.table_points.item(i,0).text()),
-                           float(self.table_points.item(i,1).text())))
+            points.append((float(self.table_points.item(i, 0).text()),
+                           float(self.table_points.item(i, 1).text())))
         points.sort()
         x_data = np.array([p[0] for p in points])
         y_data = np.array([p[1] for p in points])
 
-        x_interp_text = self.input_interp_x.text().strip().replace(',', '.')
-
-        if not x_interp_text or x_interp_text == "-":
-            self.res_lagrange.setText("Вы не задали точку интерполяции")
-            self.res_newton.setText("Вы не задали точку интерполяции")
-            self.res_canonical.setText("Вы не задали точку интерполяции")
-            self.label_formula.setText("Универсальная формула: ")
-            self.ax.clear()
-            self.ax.grid(True, linestyle='--', alpha=0.6)
-            self.canvas.draw()
-            return
-
-        x_interp = float(x_interp_text)
-
-        x_min, x_max = x_data[0], x_data[-1]
-
-        if x_interp < x_min or x_interp > x_max:
-            self.res_lagrange.setText("Вне диапазона")
-            self.res_newton.setText("Вне диапазона")
-            self.res_canonical.setText("Вне диапазона")
-            self.label_formula.setText("Универсальная формула: ")
-
-            show_single_hint(self, self.input_interp_x, \
-                f"Точка вне диапазона [{x_min}, {x_max}]")
-            x_min, x_max = x_data.min(), x_data.max()
-            x_line = np.linspace(x_min, x_max, 200)
-            y_lagrange = [poly_lagrange(xi, x_data, y_data) for xi in x_line]
-            self.ax.clear()
-            self.ax.plot(x_data, y_lagrange, '-', color='#3b82f6', linewidth=2,
-                         label='P(x)')
-            self.ax.scatter(x_data, y_data, color='red', zorder=3, 
-                            label='Узлы')
-            self.ax.legend()
-            self.ax.grid(True, linestyle='--', alpha=0.6)
-            self.canvas.draw()
-            return
-        else:
-            clear_hint(self, self.input_interp_x)
-
-        coeffs = get_canonical_coeffs(x_data, y_data)
-        if coeffs:
-            res_c = sum(c * (x_interp ** i) for i, c in enumerate(coeffs))
-            self.res_canonical.setText(f"{res_c:.6f}")
-            self.label_formula.setText(f"Универсальная формула: \
- {format_universal_formula(coeffs)}")
-        
-        self.res_lagrange.setText(f"{poly_lagrange(x_interp, x_data, 
-        y_data):.6f}")
-        try:
-            val_newton = poly_newton(x_interp, x_data, y_data)
-            self.res_newton.setText(f"{val_newton:.6f}")
-        except ValueError:
-            self.res_newton.setText("Шаг узлов не равен")
-
         self.ax.clear()
-        x_min, x_max = x_data.min(), x_data.max()
-        x_line = np.linspace(x_min, x_max, 200)
-        y_lagrange = [poly_lagrange(xi, x_data, y_data) for xi in x_line]
+        self.ax.scatter(x_data, y_data, color='red', zorder=5, 
+                        label='Экспериментальные точки')
 
-        self.ax.plot(x_line, y_lagrange, '-', color='#3b82f6', 
-                      linewidth=2, label='P(x)')
-        self.ax.scatter(x_data, y_data, color='red', zorder=3, 
-                        label='Узлы')
+        x_plot = np.linspace(min(x_data), max(x_data), 200)
+
+        try:
+            la, lb, lsse = fit_linear(x_data, y_data)
+            self.res_lin_a.setText(f"{la:.6f}")
+            self.res_lin_b.setText(f"{lb:.6f}")
+            self.res_lin_sse.setText(f"{lsse:.6f}")
+            y_lin = la * x_plot + lb
+            self.ax.plot(x_plot, y_lin, '-', label='Линейная регрессия', 
+                         linewidth=1.5)
+        except Exception as e:
+            self.res_lin_a.setText("Ошибка")
+            self.res_lin_b.setText("Ошибка")
+            self.res_lin_sse.setText(str(e))
+
+        if n < 3:
+            self.res_quad_a.setText("Нужно >= 3 точек")
+            self.res_quad_b.setText("Нужно >= 3 точек")
+            self.res_quad_c.setText("Нужно >= 3 точек")
+            self.res_quad_sse.setText("Нужно >= 3 точек")
+        else:
+            try:
+                qa, qb, qc, qsse = fit_quadratic(x_data, y_data)
+                self.res_quad_a.setText(f"{qa:.6f}")
+                self.res_quad_b.setText(f"{qb:.6f}")
+                self.res_quad_c.setText(f"{qc:.6f}")
+                self.res_quad_sse.setText(f"{qsse:.6f}")
+                y_quad = qa * (x_plot**2) + qb * x_plot + qc
+                self.ax.plot(x_plot, y_quad, '--', 
+                             label='Квадратичная регрессия', linewidth=1.5)
+            except Exception as e:
+                self.res_quad_a.setText("Ошибка")
+                self.res_quad_b.setText("Ошибка")
+                self.res_quad_c.setText("Ошибка")
+                self.res_quad_sse.setText(str(e))
+
+        if n < 3:
+            self.res_cust_a.setText("Нужно >= 3 точек")
+            self.res_cust_b.setText("Нужно >= 3 точек")
+            self.res_cust_c.setText("Нужно >= 3 точек")
+            self.res_cust_sse.setText("Нужно >= 3 точек")
+        else:
+            has_zero = any(abs(xi) < 1e-12 for xi in x_data)
+            if has_zero:
+                self.res_cust_a.setText("x = 0 присутствует")
+                self.res_cust_b.setText("x = 0 присутствует")
+                self.res_cust_c.setText("x = 0 присутствует")
+                self.res_cust_sse.setText("x = 0 присутствует")
+            else:
+                try:
+                    ca, cb, cc, csse = fit_custom(x_data, y_data)
+                    self.res_cust_a.setText(f"{ca:.6f}")
+                    self.res_cust_b.setText(f"{cb:.6f}")
+                    self.res_cust_c.setText(f"{cc:.6f}")
+                    self.res_cust_sse.setText(f"{csse:.6f}")
+                    y_cust = ca / (x_plot**2) + cb / x_plot + cc
+                    self.ax.plot(x_plot, y_cust, ':', 
+                                 label='Пользовательская регрессия', 
+                                 linewidth=1.5)
+                except Exception as e:
+                    self.res_cust_a.setText("Ошибка")
+                    self.res_cust_b.setText("Ошибка")
+                    self.res_cust_c.setText("Ошибка")
+                    self.res_cust_sse.setText(str(e))
+
         self.ax.legend()
         self.ax.grid(True, linestyle='--', alpha=0.6)
         self.canvas.draw()

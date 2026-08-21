@@ -22,17 +22,24 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Class\Components\tooltip.py" />
+    <Compile Include="Class\Window\approx_window.py" />
+    <Compile Include="Class\Window\diff_window.py" />
     <Compile Include="Class\Window\poly_window.py" />
     <Compile Include="Class\Window\nonlinear_window.py" />
     <Compile Include="Class\Window\runge_window.py" />
     <Compile Include="Class\Window\intergral_window.py" />
     <Compile Include="Class\Window\main_window.py" />
+    <Compile Include="Function\Calculate\approx_operation.py" />
+    <Compile Include="Function\Calculate\CLAY.py" />
+    <Compile Include="Function\Calculate\diff_operation.py" />
     <Compile Include="Function\Calculate\poly_operation.py" />
     <Compile Include="Function\Calculate\nonlinear_operation.py" />
     <Compile Include="Function\Calculate\integral_operation.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Function\navigation.py" />
+    <Compile Include="Function\Validation\ui_approx.py" />
+    <Compile Include="Function\Validation\ui_diff.py" />
     <Compile Include="Function\Validation\ui_poly.py" />
     <Compile Include="Function\Validation\ui_nonlinear.py" />
     <Compile Include="Function\Validation\ui_integral.py" />
@@ -48,11 +55,17 @@
     <Folder Include="Class\" />
     <Folder Include="Function\" />
     <Folder Include="Icon\Integral\" />
+    <Folder Include="Icon\Approx\" />
+    <Folder Include="Icon\Diff\" />
     <Folder Include="Icon\Poly\" />
     <Folder Include="Icon\Nonlinear\" />
     <Folder Include="Style\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Function\From_author.html" />
+    <Content Include="Function\style.css" />
+    <Content Include="Icon\Approx\approximation.png" />
+    <Content Include="Icon\Diff\differentiation.png" />
     <Content Include="Icon\integral.png" />
     <Content Include="icon\Integral2.png" />
     <Content Include="Icon\Integral3.png" />

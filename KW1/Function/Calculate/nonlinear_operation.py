@@ -43,7 +43,11 @@ def bisection_method(func_idx, a, b, eps):
     while (b - a) > eps / 2:
         c = (a + b) / 2
         fc = f_core(c, func_idx)
-        if abs(fc) < 1e-15: return c, iters
+        if abs(fc) < 1e-15:
+            if iters == 0:
+                return c, iters + 1
+            else:
+                return c, iters
         if fa * fc < 0: b = c
         else:
             a = c
@@ -72,7 +76,10 @@ def chord_method(func_idx, a, b, eps):
             fx_b = f_core(x_b, func_idx)
             x_next = x_b - ((fx_b*(x_b-x_a))/(fx_b-fx_a))
         if abs(x_next - x_curr) < eps / 2:
-            return x_curr, iters
+            if iters == 0:
+                return x_curr, iters+1
+            else:
+                return x_curr, iters
         iters += 1
     return x_curr, iters
 # Функция, реализующая алгоритм метода хорд
@@ -87,7 +94,10 @@ def tangent_method(func_idx, a, b, eps):
         h = fx / dfx
         x_next = x_curr - h
         if abs(x_next - x_curr) < eps / 2:
-            return x_curr, iters
+            if iters == 0:
+                return x_curr, iters+1
+            else:
+                return x_curr, iters
         x_curr = x_next
         iters += 1
     return x_curr, iters
@@ -104,7 +114,10 @@ def combined_method(func_idx, a, b, eps):
         dfb = df_core(x_b, func_idx)
         if abs(x_b - x_a) < eps / 2:
             x = (x_a + x_b)/2
-            return x, iters
+            if iters == 0:
+                return x, iters+1
+            else:
+                return x, iters
         x_a = x_a - ((fa * (x_b - x_a))/ (fb - fa))
         x_b = x_b - fb / dfb
         iters += 1
@@ -124,7 +137,10 @@ def iter_method(func_idx, a, b, eps):
             fx = f_core(x_curr, func_idx)
             x_next = x_curr - k * fx
             if abs(x_next - x_curr) < eps / 2:
-                return x_next, i
+                if i == 0:
+                    return x_next, i+1
+                else:
+                    return x_next, i
             x_curr = x_next
         return x_curr, 1000
     else:
@@ -134,7 +150,10 @@ def iter_method(func_idx, a, b, eps):
             fx = -(f_core(x_curr, func_idx))
             x_next = x_curr - k * fx
             if abs(x_next - x_curr) < eps / 2:
-                return x_next, i
+                if i == 0:
+                    return x_next, i+1
+                else:
+                    return x_next, i
             x_curr = x_next
         return x_curr, 1000
 # Функция, отвечающая за вычисления с помощью метода итерации
@@ -185,15 +204,15 @@ def run_calculation(self):
     r_com, i_com = combined_method(f_idx, a, b, eps)
     r_ite, i_ite = iter_method(f_idx, a, b, eps)
 
-    self.res_dih.setText(f"{r_dih}"); 
-    self.step_dih.setText(str(i_dih))
-    self.res_hor.setText(f"{r_hor}"); 
+    self.res_dih.setText(f"{r_dih:.8}"); 
+    self.step_dih.setText(str(i_dih ))
+    self.res_hor.setText(f"{r_hor:.8}"); 
     self.step_hor.setText(str(i_hor))
-    self.res_kac.setText(f"{r_kac}"); 
+    self.res_kac.setText(f"{r_kac:.8}"); 
     self.step_kac.setText(str(i_kac))
-    self.res_comba.setText(f"{r_com}"); 
+    self.res_comba.setText(f"{r_com:.8}"); 
     self.step_comba.setText(str(i_com))
-    self.res_iter.setText(f"{r_ite}"); 
+    self.res_iter.setText(f"{r_ite:.8}"); 
     self.step_iter.setText(str(i_ite))
 
     self.ax.clear()

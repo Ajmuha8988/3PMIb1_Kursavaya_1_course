@@ -1,9 +1,13 @@
 ﻿from PyQt6.QtWidgets import QMessageBox
 # Импорт компонента библиотеки PyQt6 для работы с графическим интерфейсом
 
+import os
+import webbrowser
 from Class.Window.intergral_window import IntegralWindow
 from Class.Window.nonlinear_window import NonlinearWindow
 from Class.Window.poly_window import PolyWindow
+from Class.Window.approx_window import ApproxWindow
+from Class.Window.diff_window import DiffWindow
 # Класс, которая отвечает за окно с интегралами, графикам и таблицой 
 
 topics = [
@@ -11,7 +15,8 @@ topics = [
             "Нелинейные уравнения",
             "Аппроксимация",
             "Интерполяция",
-            "Дифференциальные уравнения"
+            "Дифференциальные уравнения",
+            "От автора"
         ]
 # Массив с названием разделом
 
@@ -38,6 +43,22 @@ def open_topic(parent, topic_name):
         parent.poly_ui.show()
         parent.poly_ui.raise_()
         parent.poly_ui.activateWindow()
+    elif topic_name == "Аппроксимация":
+        if parent.approx_ui is None:
+            parent.approx_ui = ApproxWindow(parent)
+        
+        parent.approx_ui.show()
+        parent.approx_ui.raise_()
+        parent.approx_ui.activateWindow()
+    elif topic_name == "Дифференциальные уравнения":
+        if parent.diff_ui is None:
+            parent.diff_ui = DiffWindow(parent)
+        
+        parent.diff_ui.show()
+        parent.diff_ui.raise_()
+        parent.diff_ui.activateWindow()
+    elif topic_name == "От автора":
+        RdFile = webbrowser.open(r'C:\Users\Муха\Desktop\Borlakov_M.K_KW1\KW1\KW1\Function\From_author.html')
     else:
-        print(f"Логика для '{topic_name}' не описана в navigation.py")
+        print(f"Что-то пошло не так")
 # Функция предназначена для навигации окон

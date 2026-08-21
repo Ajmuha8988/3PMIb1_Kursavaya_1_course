@@ -2,7 +2,7 @@
 # Класс, которая является компонетом для вывода всплывающей подсказки
 
 from Function.Calculate.nonlinear_operation import run_calculation \
-    as clc_lgc, df_core, f_core
+    as clc_lgc, df_core, f_core, clear_ui
 # Функция отвечающая за вычисления корня уравнения методом дихотомии
 
 from PyQt6.QtCore import QRegularExpression
@@ -50,23 +50,27 @@ def live_validation(self, index):
                 h = (val_a + val_b)/2
 
                 if f_idx == 4 and (val_a <= -11 or val_b <= -11):
+                    clear_ui(self)
                     return show_single_hint(self, self.input_a, wrng_log)
 
                 fa, fb = f_core(val_a, f_idx), f_core(val_b, f_idx)
                 if fa * fb >= 0:
+                    clear_ui(self)
                     return show_single_hint(self, self.input_a, wrng_signs)
 
                 dfa, dfb = df_core(val_a, f_idx), df_core(val_b, f_idx)
                 if dfa * dfb <= 0 or abs(dfa) < 1e-12 or abs(dfb) < 1e-12:
+                    clear_ui(self)
                     return show_single_hint(self, self.input_a, wrng_df)
 
                 if val_a >= val_b:
                     return show_single_hint(self, self.input_a, text_a_b)
 
                 if df_core(h, f_idx) == 0:
+                    clear_ui(self)
                     return show_single_hint(self, self.input_a, wrng_df)
             
-            if text_a == "": 
+            if text_a == "":
                 return show_single_hint(self, self.input_a, "Введите число")
             if text_b == "": 
                 return show_single_hint(self, self.input_b, "Введите число")

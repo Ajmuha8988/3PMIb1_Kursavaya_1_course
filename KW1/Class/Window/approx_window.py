@@ -12,40 +12,32 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FCanvas
 from matplotlib.figure import Figure
 # Импорт библиотеки для работы с графиками
 
-class PolyWindow(QDialog):
+class ApproxWindow(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Интерполяция")
+        self.setWindowTitle("Аппроксимация")
         self.setMinimumSize(1350, 850)
         self.setStyleSheet(IW)
         self.active_hint = None
-        self.setWindowIcon(QIcon("Icon/Poly/Poly_icon.png"))
+        self.setWindowIcon(QIcon("Icon/Approx/approximation.png"))
         self.init_ui()
 
     def init_ui(self):
-        from Function.Validation.ui_poly import (add_point, 
-                                                 fill_by_condition,
-                                                delete_selected, clear_all, 
-                                                rex_float,live_validation
-                                                as l_v, update_button_state)
+        from Function.Validation.ui_approx import (add_point, 
+                               fill_by_condition,
+                               delete_selected, clear_all, 
+                               rex_float,live_validation as l_v,
+                               update_button_state)
 
         outer_layout = QVBoxLayout(self)
         content_layout = QHBoxLayout()
         left_side = QVBoxLayout()
 
-        interp_group = QGroupBox("Точка для интерполяции")
-        interp_form = QFormLayout()
-        self.input_interp_x = QLineEdit("0.1")
-        self.input_interp_x.setValidator(rex_float)
-        interp_form.addRow("Введите x<sup>*</sup>:", self.input_interp_x)
-        interp_group.setLayout(interp_form)
-        left_side.addWidget(interp_group)
-
         node_group = QGroupBox("Добавление узлов")
         node_form = QFormLayout()
-        self.input_x = QLineEdit("1"); 
+        self.input_x = QLineEdit("1") 
         self.input_x.setValidator(rex_float)
-        self.input_y = QLineEdit("2"); 
+        self.input_y = QLineEdit("2") 
         self.input_y.setValidator(rex_float)
         node_form.addRow("Координата X:", self.input_x)
         node_form.addRow("Координата Y:", self.input_y)
@@ -70,9 +62,7 @@ class PolyWindow(QDialog):
         ctrl_vbox.addWidget(self.btn_exit)
         ctrl_group.setLayout(ctrl_vbox)
         left_side.addWidget(ctrl_group)
-        left_side.addStretch()
 
-        mid_side = QVBoxLayout()
         table_group = QGroupBox("Табличные данные")
         table_layout = QVBoxLayout()
         self.table_points = QTableWidget(0, 2)
@@ -81,27 +71,59 @@ class PolyWindow(QDialog):
             .setSectionResizeMode(QHV.ResizeMode.Stretch)
         table_layout.addWidget(self.table_points)
         table_group.setLayout(table_layout)
-        mid_side.addWidget(table_group, 3)
+        left_side.addWidget(table_group, 1)
 
-        res_group = QGroupBox("Значение полинома в точке интерполяции")
+        mid_side = QVBoxLayout()
+        res_group = QGroupBox("Результаты аппроксимации МНК")
         res_form = QFormLayout()
-        self.res_lagrange = QLineEdit(); 
-        self.res_lagrange.setReadOnly(True)
-        self.res_newton = QLineEdit(); 
-        self.res_newton.setReadOnly(True)
-        self.res_canonical = QLineEdit(); 
-        self.res_canonical.setReadOnly(True)
-        self.label_formula = QLabel("Универсальная формула: ")
-        self.label_formula.setWordWrap(True)
-        res_form.addRow("Лагранжа:", self.res_lagrange)
-        res_form.addRow("Ньютона:", self.res_newton)
-        res_form.addRow("Канонический:", self.res_canonical)
-        res_form.addRow(self.label_formula)
+        
+        self.res_lin_a = QLineEdit() 
+        self.res_lin_b = QLineEdit() 
+        self.res_lin_sse = QLineEdit() 
+        self.res_lin_a.setReadOnly(True)
+        self.res_lin_b.setReadOnly(True)
+        self.res_lin_sse.setReadOnly(True)
+        
+        self.res_quad_a = QLineEdit() 
+        self.res_quad_b = QLineEdit() 
+        self.res_quad_c = QLineEdit() 
+        self.res_quad_sse = QLineEdit() 
+        self.res_quad_a.setReadOnly(True)
+        self.res_quad_b.setReadOnly(True)
+        self.res_quad_c.setReadOnly(True)
+        self.res_quad_sse.setReadOnly(True)
+        
+        self.res_cust_a = QLineEdit() 
+        self.res_cust_b = QLineEdit() 
+        self.res_cust_c = QLineEdit() 
+        self.res_cust_sse = QLineEdit() 
+        self.res_cust_a.setReadOnly(True)
+        self.res_cust_b.setReadOnly(True)
+        self.res_cust_c.setReadOnly(True)
+        self.res_cust_sse.setReadOnly(True)
+
+        res_form.addRow(QLabel("<b>Линейная регрессия:</b>"))
+        res_form.addRow("Поле a:", self.res_lin_a)
+        res_form.addRow("Поле b:", self.res_lin_b)
+        res_form.addRow("Суммарная погрешность:", self.res_lin_sse)
+
+        res_form.addRow(QLabel("<b>Квадратичная регрессия:</b>"))
+        res_form.addRow("Поле a:", self.res_quad_a)
+        res_form.addRow("Поле b:", self.res_quad_b)
+        res_form.addRow("Поле c:", self.res_quad_c)
+        res_form.addRow("Суммарная погрешность:", self.res_quad_sse)
+
+        res_form.addRow(QLabel("<b>Пользовательская регрессия:</b>"))
+        res_form.addRow("Поле a:", self.res_cust_a)
+        res_form.addRow("Поле b:", self.res_cust_b)
+        res_form.addRow("Поле c:", self.res_cust_c)
+        res_form.addRow("Суммарная погрешность:", self.res_cust_sse)
+        
         res_group.setLayout(res_form)
-        mid_side.addWidget(res_group, 2)
+        mid_side.addWidget(res_group, 1)
 
         right_side = QVBoxLayout()
-        plot_container = QGroupBox("График P(x) и табличные точки")
+        plot_container = QGroupBox("График аппроксимации")
         plot_layout = QVBoxLayout()
         self.figure = Figure(facecolor='#FFFFFF')
         self.canvas = FCanvas(self.figure)
@@ -111,14 +133,13 @@ class PolyWindow(QDialog):
         plot_container.setLayout(plot_layout)
         right_side.addWidget(plot_container)
 
-        content_layout.addLayout(left_side, 2)
+        content_layout.addLayout(left_side, 3)
         content_layout.addLayout(mid_side, 3)
         content_layout.addLayout(right_side, 5)
         outer_layout.addLayout(content_layout)
 
         self.input_x.textChanged.connect(lambda text: l_v(self, 1))
         self.input_y.textChanged.connect(lambda text: l_v(self, 1))
-        self.input_interp_x.textChanged.connect(lambda text: l_v(self, 2))
 
         self.btn_add.clicked.connect(lambda: add_point(self))
         self.btn_fill.clicked.connect(lambda: fill_by_condition(self))
